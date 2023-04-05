@@ -1,4 +1,4 @@
-const bcryptjs = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
 
@@ -12,16 +12,42 @@ module.exports = {
   findUser,
   createUser,
   createUserToken,
+
+  isValidUsername,
+  isValidPassword,
 };
 
-async function findUser(email, rawPassword) {
-  const password = await passwordHash(rawPassword);
-  return UserModel.findOne({ email, password });
+/**
+ * @param {string} username
+ * @param {string|false} [rawPassword=false]
+ */
+async function findUser(username, rawPassword = false) {
+  const user = await UserModel.findOne({ username }).exec();
+  if(!user) {
+    return null;
+  }
+  if(rawPassword === false) {
+    return withoutPassword(user);
+  }
+
+  const passwordMatch = await passwordCompare(rawPassword, user.password);
+  console.log('passwordMatch', passwordMatch);
+  if(!passwordMatch) {
+    return null;
+  }
+  return withoutPassword(user);
 }
 
-async function createUser(user, rawPassword) {
-  user.password = await passwordHash(rawPassword);
-  return UserModel.create(user);
+/**
+ * @warn please use isValidUsername and isValidPassword before calling this function
+ */
+async function createUser(userParameters, rawPassword) {
+  const password = await passwordHash(rawPassword);
+  const user = await UserModel.create({
+    ...userParameters,
+    password,
+  });
+  return withoutPassword(user);
 }
 
 function createUserToken(user) {
@@ -32,6 +58,25 @@ function createUserToken(user) {
 }
 
 async function passwordHash(rawPassword) {
-  const salt = await bcryptjs.genSalt(10);
-  return bcryptjs.hash(rawPassword, salt);
+  const salt = await bcrypt.genSalt(10);
+  return bcrypt.hash(rawPassword, salt);
+}
+
+function withoutPassword(user) {
+  delete user.password;
+  return user;
+}
+
+function passwordCompare(rawPassword, hashedPassword) {
+  return bcrypt.compare(rawPassword, hashedPassword);
+}
+
+function isValidUsername(test) {
+  // make sure test is a real username syntax
+  return true;
+}
+
+function isValidPassword(test) {
+  // make sure test is a valid password syntax
+  return true;
 }

@@ -26,7 +26,7 @@ Request:
 
 ```json
 {
-  "email": "my.em@il.com",
+  "username": "my.em@il.com",
   "password": "userpassword"
 }
 ```

@@ -1,31 +1,45 @@
 const { postResponse } = require("../features/communication");
-const { findUser, createUserToken } = require("../features/users");
+const { findUser, createUser, createUserToken, isValidUsername, isValidPassword } = require("../features/users");
 
 module.exports = {
   authenticate,
+  register,
 };
 
 async function authenticate(req, res) {
-  const { email, password } = req.body;
-  if (!(isEmail(email) && isValidPassword(password))) {
+  const { username, password } = req.body;
+  if (!(isValidUsername(username) && isValidPassword(password))) {
     return postResponse(res, false, "invalid request payload");
   }
 
-  const user = await findUser(email, password);
+  const user = await findUser(username, password);
   if (!user) {
     return postResponse(res, false, "invalid credentials");
   }
+  console.log('req.body', req.body)
+  console.log('user', user)
 
   const token = await createUserToken(user);
   return postResponse(res, true, "authenticated successfully", { token });
 }
 
-function isEmail(test) {
-  // make sure test is a real email syntax
-  return true;
-}
+async function register(req, res) {
+  const { username, password } = req.body;
+  if (!(isValidUsername(username) && isValidPassword(password))) {
+    return postResponse(res, false, "invalid request payload");
+  }
+  const existingUser = await findUser(username);
+  if (existingUser) {
+    // user exists
+    return postResponse(res, false, "invalid request");
+  }
 
-function isValidPassword(test) {
-  // make sure test is a valid password syntax
-  return true;
+  const user = await createUser({ username }, password);
+  if (!user) {
+    return postResponse(res, false, "server error");
+  }
+
+  return postResponse(res, true, "user created", {
+    userId: user.id,
+  });
 }
