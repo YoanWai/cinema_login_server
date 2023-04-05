@@ -1,6 +1,6 @@
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const promisify = require("util");
+const { promisify } = require("util");
 
 const jwtSign = promisify(jwt.sign);
 
