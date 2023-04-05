@@ -16,8 +16,6 @@ async function authenticate(req, res) {
   if (!user) {
     return postResponse(res, false, "invalid credentials");
   }
-  console.log('req.body', req.body)
-  console.log('user', user)
 
   const token = await createUserToken(user);
   return postResponse(res, true, "authenticated successfully", { token });

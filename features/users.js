@@ -31,7 +31,6 @@ async function findUser(username, rawPassword = false) {
   }
 
   const passwordMatch = await passwordCompare(rawPassword, user.password);
-  console.log('passwordMatch', passwordMatch);
   if(!passwordMatch) {
     return null;
   }
