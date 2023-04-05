@@ -3,6 +3,7 @@ validateEnvironmentOrDie();
 
 const { LISTEN_PORT } = process.env;
 
+require("./database");
 const app = require("./server");
 app.listen(LISTEN_PORT, () => {
   console.log(`Server listening on port ${LISTEN_PORT}!`);
@@ -28,3 +29,7 @@ function validateEnvironmentOrDie(exitCode = 1) {
   console.error("missing required keys at .env file:", missingKeys);
   process.exit(exitCode);
 }
+
+process.on("unhandledRejection", (error) => {
+  console.error("unhandledRejection", error);
+});
