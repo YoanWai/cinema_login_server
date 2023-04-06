@@ -1,39 +1,22 @@
+require("./config/database");
+
+const express = require("express");
+const app = express();
+const cors = require("cors");
+const routes = require("./routers/userRouter");
+
+app.use(cors());
+app.use(express.json());
+app.use(routes);
+
 require("dotenv").config();
 validateEnvironmentOrDie();
 
 const { LISTEN_PORT } = process.env;
 
-require("./database");
-const app = require("./server");
 app.listen(LISTEN_PORT, () => {
   console.log(`Server listening on port ${LISTEN_PORT}!`);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /**
  * makes sure process.env object contains

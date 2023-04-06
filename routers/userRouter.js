@@ -1,29 +1,35 @@
 const express = require("express");
+const router = express.Router();
+
 const {
   findUser,
   createUser,
   createUserToken,
   isValidUsername,
   isValidPassword,
-} = require("./business-logic-layer/usersBL");
+} = require("../business-logic-layer/usersBL");
 
-const router = new express.Router();
+const { postResponse } = require("../customUtils");
 
+// login
 router.post("/authenticate", async function authenticate(req, res) {
   const { username, password } = req.body;
-  if (!(isValidUsername(username) && isValidPassword(password))) {
-    return postResponse(res, false, "invalid request payload");
-  }
+
 
   const user = await findUser(username, password);
-  if (!user) {
-    return postResponse(res, false, "invalid credentials");
+  console.log(user);
+  if (user === "User not found") {
+    return postResponse(res, false, user);
+  }
+  if (user === "Invalid password") {
+    return postResponse(res, false, user);
   }
 
   const token = await createUserToken(user);
   return postResponse(res, true, "authenticated successfully", { token });
 });
 
+// signup
 router.post("/register", async function register(req, res) {
   const { fullname, username, password } = req.body;
 
@@ -44,9 +50,9 @@ router.post("/register", async function register(req, res) {
   }
 
   const existingUser = await findUser(username);
-  if (existingUser) {
+  if (existingUser ) {
     // user exists
-    return postResponse(res, false, "User already exists");
+    return postResponse(res, false, "Username already exists");
   }
 
   const user = await createUser({ fullname, username }, password);
@@ -60,17 +66,6 @@ router.post("/register", async function register(req, res) {
 });
 
 module.exports = router;
-
-function postResponse(res, success, message, data = {}) {
-  if (!success) {
-    res.status(403);
-  }
-  return res.json({
-    success,
-    message,
-    data,
-  });
-}
 
 /**
  * @param {import('express').Response} res
