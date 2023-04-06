@@ -9,6 +9,32 @@ app.listen(LISTEN_PORT, () => {
   console.log(`Server listening on port ${LISTEN_PORT}!`);
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  * makes sure process.env object contains
  * every variables requried for the server to run

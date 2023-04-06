@@ -6,7 +6,7 @@ const jwtSign = promisify(jwt.sign);
 
 const { JWT_SECRET } = process.env;
 
-const UserModel = require("../models/userModel");
+const UserModel = require("../data-access-layer/models/userModel");
 
 module.exports = {
   findUser,
@@ -21,17 +21,18 @@ module.exports = {
  * @param {string} username
  * @param {string|false} [rawPassword=false]
  */
+
 async function findUser(username, rawPassword = false) {
   const user = await UserModel.findOne({ username }).exec();
-  if(!user) {
+  if (!user) {
     return null;
   }
-  if(rawPassword === false) {
+  if (rawPassword === false) {
     return withoutPassword(user);
   }
 
   const passwordMatch = await passwordCompare(rawPassword, user.password);
-  if(!passwordMatch) {
+  if (!passwordMatch) {
     return null;
   }
   return withoutPassword(user);
@@ -71,11 +72,11 @@ function passwordCompare(rawPassword, hashedPassword) {
 }
 
 function isValidUsername(test) {
-  // make sure test is a real username syntax
-  return true;
+  // username must be at least 4 characters long
+  return test.length > 3;
 }
 
 function isValidPassword(test) {
-  // make sure test is a valid password syntax
-  return true;
+  // password must be at least 4 characters long
+  return test.length >= 4;
 }
