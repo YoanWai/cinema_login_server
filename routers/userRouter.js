@@ -7,31 +7,46 @@ const {
   createUserToken,
   isValidUsername,
   isValidPassword,
+  passwordCompare,
 } = require("../business-logic-layer/usersBL");
 
-const { postResponse } = require("../customUtils");
+const { postResponse } = require("../utils/customUtils");
 
 // login
 router.post("/authenticate", async function authenticate(req, res) {
   const { username, password } = req.body;
 
+  const user = await findUser(username);
 
-  const user = await findUser(username, password);
-  console.log(user);
-  if (user === "User not found") {
-    return postResponse(res, false, user);
+  if (!user) {
+    return postResponse(res, false, "User not found");
   }
-  if (user === "Invalid password") {
-    return postResponse(res, false, user);
+
+  const passwordMatch = await passwordCompare(password, user.password);
+
+  if (!passwordMatch) {
+    return postResponse(res, false, "Wrong password");
   }
 
   const token = await createUserToken(user);
-  return postResponse(res, true, "authenticated successfully", { token });
+  return postResponse(res, true, "authenticated successfully", {
+    token: token,
+    user: {
+      id: user.id,
+      username: user.username,
+      fullname: user.fullname,
+      country: user.country,
+      city: user.city,
+      phone: user.phone,
+      email: user.email,
+    },
+  });
 });
 
 // signup
 router.post("/register", async function register(req, res) {
-  const { fullname, username, password } = req.body;
+  const { fullname, username, password, country, city, phone, email } =
+    req.body;
 
   if (!isValidUsername(username)) {
     return postResponse(
@@ -50,12 +65,15 @@ router.post("/register", async function register(req, res) {
   }
 
   const existingUser = await findUser(username);
-  if (existingUser ) {
+  if (existingUser) {
     // user exists
     return postResponse(res, false, "Username already exists");
   }
 
-  const user = await createUser({ fullname, username }, password);
+  const user = await createUser(
+    { fullname, username, country, city, phone },
+    password
+  );
   if (!user) {
     return postResponse(res, false, "server error");
   }
@@ -66,10 +84,3 @@ router.post("/register", async function register(req, res) {
 });
 
 module.exports = router;
-
-/**
- * @param {import('express').Response} res
- * @param {boolean} success true = 200, false = 403
- * @param {string} message
- * @param {any} data
- */

@@ -8,27 +8,8 @@ const { JWT_SECRET } = process.env;
 
 const UserModel = require("../data-access-layer/models/userModel");
 
-/**
- * find user in database, optionally checking if password matches
- * @param {string} username
- * @param {string|false} [rawPassword=false]
- */
-async function findUser(username, rawPassword = false) {
-  const user = await UserModel.findOne({ username });
-  if (!user) {
-    return "User not found";
-  }
-
-  if (rawPassword === false) {
-    return withoutPassword(user);
-  }
-
-  const passwordMatch = await passwordCompare(rawPassword, user.password);
-  if (!passwordMatch) {
-    return "Invalid password";
-  }
-
-  return withoutPassword(user);
+function findUser(username) {
+  return UserModel.findOne({ username });
 }
 
 async function createUser(userParameters, rawPassword) {
@@ -44,7 +25,7 @@ function createUserToken(user) {
   const payload = {
     userId: user.id,
   };
-  return jwtSign(payload, JWT_SECRET);
+  return jwtSign(payload, JWT_SECRET, { expiresIn: "1h" });
 }
 
 async function passwordHash(rawPassword) {
@@ -63,7 +44,7 @@ function passwordCompare(rawPassword, hashedPassword) {
 
 function isValidUsername(test) {
   // username must be at least 4 characters long
-  return test.length > 3;
+  return test.length >= 3;
 }
 
 function isValidPassword(test) {
@@ -78,4 +59,5 @@ module.exports = {
 
   isValidUsername,
   isValidPassword,
+  passwordCompare,
 };
