@@ -28,6 +28,7 @@ router.post("/authenticate", async function authenticate(req, res) {
     return postResponse(res, false, "Wrong password");
   }
 
+  // create token
   const token = await createUserToken(user);
   return postResponse(res, true, "authenticated successfully", {
     token: token,
@@ -66,7 +67,6 @@ router.post("/register", async function register(req, res) {
 
   const existingUser = await findUser(username);
   if (existingUser) {
-    // user exists
     return postResponse(res, false, "Username already exists");
   }
 
