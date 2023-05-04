@@ -1,9 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
-
 const jwtSign = promisify(jwt.sign);
-
 const { JWT_SECRET } = process.env;
 
 const UserModel = require("../data-access-layer/models/userModel");
