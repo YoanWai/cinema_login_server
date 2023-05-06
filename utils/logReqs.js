@@ -4,7 +4,7 @@ function logReqs(req, res, next) {
       req.url
     } \n Date: ${new Date().toLocaleString()} \n IP: ${req.ip} \n StatusCode: ${
       res.statusCode
-    } \n StatusMessage: ${res.statusMessage} \n Body: ${req} \n`
+    } \n Body: ${req.body} \n`
   );
 
   console.log();
