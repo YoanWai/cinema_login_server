@@ -1,13 +1,18 @@
 require("./config/database");
 
+
 const express = require("express");
 const app = express();
 const cors = require("cors");
 const routes = require("./routers/userRouter");
+const logReqs = require("./utils/logReqs");
+
 
 app.use(cors());
 app.use(express.json());
+app.use(logReqs)
 app.use(routes);
+
 
 require("dotenv").config();
 validateEnvironmentOrDie();
