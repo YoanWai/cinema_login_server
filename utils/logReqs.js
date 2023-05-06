@@ -1,8 +1,10 @@
 function logReqs(req, res, next) {
   console.log(
-    `REQ: METHOD: [${req.method}]  PATH: ${
+    `@@@@@@@@@@@@@@\n REQ: METHOD: [${req.method}] \n PATH: ${
       req.url
-    } - ${new Date().toLocaleString()} - ${req.ip} - ${res.statusCode}`
+    } \n Date: ${new Date().toLocaleString()} \n IP: ${req.ip} \n StatusCode: ${
+      res.statusCode
+    } \n StatusMessage: ${res.statusMessage} \n Body: ${JSON.stringify(req)} \n`
   );
 
   console.log();
